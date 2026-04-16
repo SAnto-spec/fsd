@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Feedback System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .form-section {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #764ba2;
+        }
+
+        .feedback-section {
+            margin-top: 30px;
+        }
+
+        .feedback-item {
+            background: #f9f9f9;
+            padding: 15px;
+            border-left: 4px solid #667eea;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+        .feedback-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .student-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 16px;
+        }
+
+        .course-name {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .rating {
+            display: inline-block;
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .comments {
+            color: #666;
+            font-size: 14px;
+            margin: 10px 0;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 5px;
+        }
+
+        .feedback-meta {
+            font-size: 12px;
+            color: #999;
+            margin-top: 10px;
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        .btn-delete:hover {
+            background: #c82333;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .rating-stars {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        .star {
+            color: #ffc107;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⭐ Student Feedback System</h1>
+
+        <div class="form-section">
+            <h2 style="margin-bottom: 15px; color: #333; font-size: 18px;">Submit Feedback</h2>
+            <div class="form-group">
+                <label for="studentName">Student Name *</label>
+                <input type="text" id="studentName" placeholder="Enter your name" required>
+            </div>
+            <div class="form-group">
+                <label for="courseName">Course Name *</label>
+                <input type="text" id="courseName" placeholder="Enter course name" required>
+            </div>
+            <div class="form-group">
+                <label for="rating">Rating (1-5) *</label>
+                <select id="rating" required>
+                    <option value="">Select rating</option>
+                    <option value="1">1 - Poor</option>
+                    <option value="2">2 - Fair</option>
+                    <option value="3">3 - Good</option>
+                    <option value="4">4 - Very Good</option>
+                    <option value="5">5 - Excellent</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="comments">Comments</label>
+                <textarea id="comments" placeholder="Enter your feedback comments"></textarea>
+            </div>
+            <button onclick="submitFeedback()">Submit Feedback</button>
+        </div>
+
+        <div class="feedback-section">
+            <h2 style="margin-bottom: 15px; color: #333; font-size: 18px;">All Feedback</h2>
+            <div id="feedbackList"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3001/feedback';
+
+        // Load feedback on page load
+        document.addEventListener('DOMContentLoaded', loadFeedback);
+
+        async function loadFeedback() {
+            try {
+                const response = await fetch(API_URL);
+                const feedback = await response.json();
+                displayFeedback(feedback);
+            } catch (error) {
+                console.error('Error loading feedback:', error);
+            }
+        }
+
+        function displayFeedback(feedbackList) {
+            const feedbackListDiv = document.getElementById('feedbackList');
+
+            if (feedbackList.length === 0) {
+                feedbackListDiv.innerHTML = '<div class="empty-state">No feedback yet.</div>';
+                return;
+            }
+
+            feedbackListDiv.innerHTML = feedbackList.map(feedback => `
+                <div class="feedback-item">
+                    <div class="feedback-header">
+                        <div>
+                            <div class="student-name">${feedback.studentName}</div>
+                            <div class="course-name">${feedback.courseName}</div>
+                        </div>
+                        <button class="btn-delete" onclick="deleteFeedback('${feedback._id}')">Delete</button>
+                    </div>
+                    <div class="rating">Rating: ${feedback.rating}/5 ${'⭐'.repeat(feedback.rating)}</div>
+                    ${feedback.comments ? `<div class="comments">${feedback.comments}</div>` : ''}
+                    <div class="feedback-meta">
+                        Submitted: ${new Date(feedback.createdAt).toLocaleDateString()}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function submitFeedback() {
+            const studentName = document.getElementById('studentName').value;
+            const courseName = document.getElementById('courseName').value;
+            const rating = document.getElementById('rating').value;
+            const comments = document.getElementById('comments').value;
+
+            if (!studentName.trim() || !courseName.trim() || !rating) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        studentName,
+                        courseName,
+                        rating: parseInt(rating),
+                        comments
+                    })
+                });
+
+                if (response.ok) {
+                    document.getElementById('studentName').value = '';
+                    document.getElementById('courseName').value = '';
+                    document.getElementById('rating').value = '';
+                    document.getElementById('comments').value = '';
+                    loadFeedback();
+                    alert('Feedback submitted successfully!');
+                }
+            } catch (error) {
+                console.error('Error submitting feedback:', error);
+            }
+        }
+
+        async function deleteFeedback(id) {
+            if (confirm('Are you sure you want to delete this feedback?')) {
+                try {
+                    const response = await fetch(`${API_URL}/${id}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (response.ok) {
+                        loadFeedback();
+                    }
+                } catch (error) {
+                    console.error('Error deleting feedback:', error);
+                }
+            }
+        }
+    </script>
+</body>
+</html>

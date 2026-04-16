@@ -1,0 +1,9 @@
+react
+html
+css 
+javascript
+mongodDB
+express
+node
+sql 
+ejs

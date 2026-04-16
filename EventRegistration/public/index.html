@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Registration</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .form-section {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #764ba2;
+        }
+
+        .registrations-section {
+            margin-top: 30px;
+        }
+
+        .registration-item {
+            background: #f9f9f9;
+            padding: 15px;
+            border-left: 4px solid #667eea;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .registration-info {
+            flex: 1;
+        }
+
+        .participant-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .event-name {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .participant-email {
+            color: #999;
+            font-size: 12px;
+        }
+
+        .registration-meta {
+            font-size: 12px;
+            color: #999;
+            margin-top: 10px;
+        }
+
+        .btn-cancel {
+            background: #dc3545;
+            padding: 5px 10px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        .btn-cancel:hover {
+            background: #c82333;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .event-badge {
+            display: inline-block;
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-weight: 600;
+            font-size: 13px;
+            margin-left: 10px;
+        }
+
+        .registration-count {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .count-number {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .count-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎫 Event Registration</h1>
+
+        <div class="registration-count">
+            <div class="count-number" id="registrationCount">0</div>
+            <div class="count-label">Total Registrations</div>
+        </div>
+
+        <div class="form-section">
+            <h2 style="margin-bottom: 15px; color: #333; font-size: 18px;">Register for Event</h2>
+            <div class="form-group">
+                <label for="name">Name *</label>
+                <input type="text" id="name" placeholder="Enter your name" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email *</label>
+                <input type="email" id="email" placeholder="Enter your email" required>
+            </div>
+            <div class="form-group">
+                <label for="eventName">Event Name *</label>
+                <input type="text" id="eventName" placeholder="Enter event name" required>
+            </div>
+            <button onclick="registerUser()">Register</button>
+        </div>
+
+        <div class="registrations-section">
+            <h2 style="margin-bottom: 15px; color: #333; font-size: 18px;">Registered Participants</h2>
+            <div id="registrationsList"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3004/registrations';
+
+        // Load registrations on page load
+        document.addEventListener('DOMContentLoaded', loadRegistrations);
+
+        async function loadRegistrations() {
+            try {
+                const response = await fetch(API_URL);
+                const registrations = await response.json();
+                displayRegistrations(registrations);
+                updateRegistrationCount(registrations.length);
+            } catch (error) {
+                console.error('Error loading registrations:', error);
+            }
+        }
+
+        function displayRegistrations(registrations) {
+            const registrationsList = document.getElementById('registrationsList');
+
+            if (registrations.length === 0) {
+                registrationsList.innerHTML = '<div class="empty-state">No registrations yet. Be the first to register!</div>';
+                return;
+            }
+
+            registrationsList.innerHTML = registrations.map(registration => `
+                <div class="registration-item">
+                    <div class="registration-info">
+                        <div class="participant-name">${registration.name}</div>
+                        <div class="event-name">
+                            Event: ${registration.eventName}
+                        </div>
+                        <div class="participant-email">📧 ${registration.email}</div>
+                        <div class="registration-meta">
+                            Registered: ${new Date(registration.createdAt).toLocaleDateString()}
+                        </div>
+                    </div>
+                    <button class="btn-cancel" onclick="cancelRegistration('${registration._id}')">Cancel</button>
+                </div>
+            `).join('');
+        }
+
+        function updateRegistrationCount(count) {
+            document.getElementById('registrationCount').textContent = count;
+        }
+
+        async function registerUser() {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const eventName = document.getElementById('eventName').value;
+
+            if (!name.trim() || !email.trim() || !eventName.trim()) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            if (!validateEmail(email)) {
+                alert('Please enter a valid email address');
+                return;
+            }
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name,
+                        email,
+                        eventName
+                    })
+                });
+
+                if (response.ok) {
+                    document.getElementById('name').value = '';
+                    document.getElementById('email').value = '';
+                    document.getElementById('eventName').value = '';
+                    loadRegistrations();
+                    alert('Registration successful!');
+                } else if (response.status === 400) {
+                    alert('This email is already registered for an event');
+                }
+            } catch (error) {
+                console.error('Error registering user:', error);
+            }
+        }
+
+        async function cancelRegistration(id) {
+            if (confirm('Are you sure you want to cancel this registration?')) {
+                try {
+                    const response = await fetch(`${API_URL}/${id}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (response.ok) {
+                        loadRegistrations();
+                    }
+                } catch (error) {
+                    console.error('Error cancelling registration:', error);
+                }
+            }
+        }
+
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+    </script>
+</body>
+</html>
