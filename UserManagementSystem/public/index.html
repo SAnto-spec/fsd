@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Management System</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">MongoDB + Node.js</p>
+        <h1>User Management System</h1>
+        <p class="lead">Create, view, search, update, and delete users from one simple dashboard.</p>
+      </div>
+      <div class="hero-card">
+        <span>API Status</span>
+        <strong id="statusText">Checking...</strong>
+      </div>
+    </header>
+
+    <main class="grid">
+      <section class="panel">
+        <div class="panel-header">
+          <h2 id="formTitle">Add New User</h2>
+          <button id="resetBtn" class="ghost" type="button">Reset</button>
+        </div>
+
+        <form id="userForm">
+          <input type="hidden" id="docId" />
+          <div class="field-grid">
+            <label>
+              <span>Name</span>
+              <input type="text" id="name" minlength="3" required placeholder="John Doe" />
+            </label>
+            <label>
+              <span>Email</span>
+              <input type="email" id="email" required placeholder="john@example.com" />
+            </label>
+            <label>
+              <span>Age</span>
+              <input type="number" id="age" min="0" max="120" placeholder="21" />
+            </label>
+            <label>
+              <span>User ID</span>
+              <input type="text" id="userId" required placeholder="USR1001" />
+            </label>
+            <label class="full">
+              <span>Hobbies</span>
+              <input type="text" id="hobbies" placeholder="Reading, Coding, Cricket" />
+            </label>
+            <label class="full">
+              <span>Bio</span>
+              <textarea id="bio" rows="4" placeholder="Short bio for text search..."></textarea>
+            </label>
+          </div>
+
+          <div class="actions">
+            <button class="primary" type="submit" id="submitBtn">Save User</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header wrap">
+          <h2>Users</h2>
+          <div class="search-row">
+            <input type="text" id="searchInput" placeholder="Search by bio, name, or email" />
+            <button class="ghost" id="searchBtn" type="button">Search</button>
+            <button class="ghost" id="loadAllBtn" type="button">Load All</button>
+          </div>
+        </div>
+
+        <div id="message" class="message"></div>
+        <div id="usersList" class="users-list"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+{
+  "name": "user-management-system",
+  "version": "1.0.0",
+  "description": "User Management System backend and frontend using Node.js, Express, and MongoDB",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "mongodb",
+    "express",
+    "mongoose",
+    "user-management"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "mongoose": "^9.4.1"
+  }
+}
