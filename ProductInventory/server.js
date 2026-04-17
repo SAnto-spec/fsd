@@ -6,7 +6,7 @@ require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3003;
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/productinventory';
+const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGO_URI || 'mongodb://localhost:27017/productinventory';
 
 // Middleware
 app.use(cors());
@@ -16,7 +16,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 // MongoDB Connection
 mongoose.connect(MONGODB_URI)
   .then(() => console.log('Connected to MongoDB'))
-  .catch(err => console.log('MongoDB Connection Error:', err));
+  .catch(err => {
+    console.log('MongoDB Connection Error:', err.message);
+    console.log('Check your .env value for MONGODB_URI (or MONGO_URI) and ensure MongoDB/Atlas is reachable.');
+  });
 
 // Product Schema
 const productSchema = new mongoose.Schema({
